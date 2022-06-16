@@ -1,0 +1,174 @@
+syntax = "proto3";
+
+import "aelf/core.proto";
+import "aelf/options.proto";
+
+import "google/protobuf/empty.proto";
+import "google/protobuf/wrappers.proto";
+import "google/protobuf/timestamp.proto";
+
+option csharp_namespace = "AElf.Contracts.ChainProposals";
+
+service ChainProposalsContract {
+
+    option (aelf.csharp_state) = "ChainProposalsContractState";
+    
+    rpc Initialize (google.protobuf.Empty) returns (google.protobuf.Empty) { }
+
+    rpc CreateOrganisation (CreateOrganisationInput) returns (google.protobuf.Int64Value) { }
+
+    rpc ChangeOrganisationStatus (ChangeOrganisationStatusInput) returns (google.protobuf.Empty) { }
+
+    rpc EditOrganisationInfo (EditOrganisationInfoInput) returns (google.protobuf.Empty) { }
+
+    rpc AddMemberToOrganisation (AddMemberToOrganisationInput) returns (google.protobuf.Empty) { }
+
+    rpc RemoveMemberFromOrganisation (RemoveMemberFromOrganisationInput) returns (google.protobuf.Empty) { }
+    
+    rpc GetOrganisationCount (google.protobuf.Empty) returns (GetOrganisationCountOutput){
+        option (aelf.is_view) = true;
+    }
+    
+    rpc GetOrganisationInfo (google.protobuf.Int64Value) returns (OrganisationInfoOutput){
+        option (aelf.is_view) = true;
+    }
+
+    rpc GetOrganisationMembers (google.protobuf.Int64Value) returns (OrganisationMembersOutput){
+        option (aelf.is_view) = true;
+    }
+
+    rpc CreateProposal (CreateProposalInput) returns (google.protobuf.Int64Value) { }
+
+    rpc GetOrganisationProposalCount (google.protobuf.Int64Value) returns (GetOrganisationProposalsCountOutput){
+        option (aelf.is_view) = true;
+    }
+    
+    rpc GetProposalInfo (GetProposalInfoInput) returns (ProposalInfoOutput){
+        option (aelf.is_view) = true;
+    }
+
+    rpc VoteForProposal (VoteForProposalInput) returns (google.protobuf.Empty) { }
+
+    rpc GetProposalVoters (GetProposalVotersInput) returns (ProposalVoters){
+        option (aelf.is_view) = true;
+    }
+
+    rpc GetProposalOptionVotes (GetProposalOptionVotesInput) returns (ProposalOptionVotes){
+        option (aelf.is_view) = true;
+    }
+    
+}
+
+message CreateOrganisationInput {
+    string name = 1;
+    string description_ipfs = 2;
+}
+
+message ChangeOrganisationStatusInput {
+    int64 id = 1;
+    bool verified = 2;
+}
+
+message EditOrganisationInfoInput {
+    int64 id = 1;
+    string name = 2;
+    string description_ipfs = 3;
+}
+
+message AddMemberToOrganisationInput {
+    int64 id = 1;
+    aelf.Address member = 2;
+}
+
+message RemoveMemberFromOrganisationInput {
+    int64 id = 1;
+    aelf.Address member = 2;
+}
+
+message CreateProposalInput {
+    int64 organisation_id = 1;
+    string info_ipfs = 2;
+    google.protobuf.Timestamp end_time = 3;
+    int64 option_votes = 4;
+}
+
+message VoteForProposalInput {
+    int64 organisation_id = 1;
+    int64 proposal_id = 2;
+    int64 option_id = 3;
+}
+
+message GetProposalInfoInput {
+    int64 organisation_id = 1;
+    int64 proposal_id = 2;
+}
+
+message GetProposalVotersInput {
+    int64 organisation_id = 1;
+    int64 proposal_id = 2;
+}
+
+message GetProposalOptionVotesInput {
+    int64 organisation_id = 1;
+    int64 proposal_id = 2;
+}
+
+
+message GetOrganisationCountOutput {
+    string value = 1;
+}
+
+message OrganisationInfoOutput {
+    int64 id = 1;
+    string name = 2;
+    string description_ipfs = 3;
+    bool is_verified = 4;
+    aelf.Address creator = 5;
+}
+
+message OrganisationMembersOutput {
+    repeated aelf.Address members = 1;
+}
+
+message GetOrganisationProposalsCountOutput {
+    string value = 1;
+}
+
+message ProposalInfoOutput {
+    int64 proposal_id = 1;
+    int64 organisation_id = 2;
+    string info_ipfs = 3;
+    aelf.Address author = 4;
+    google.protobuf.Timestamp start_time = 5;
+    google.protobuf.Timestamp end_time = 6;
+}
+
+message ProposalOptionVotes {
+    repeated int64 option_votes = 1;
+}
+
+message ProposalVoters {
+    repeated aelf.Address voters = 1;
+}
+
+
+message CreateOrganisation {
+    option(aelf.is_event) = true;
+    aelf.Address creator = 1;
+    int64 organisation_id = 2;
+}
+
+message CreateProposal {
+    option(aelf.is_event) = true;
+    aelf.Address author = 1;
+    int64 organisation_id = 2;
+    int64 proposal_id = 3;
+}
+
+message Vote {
+    option(aelf.is_event) = true;
+    int64 organisation_id = 1;
+    int64 proposal_id = 2;
+    aelf.Address voter = 3;
+    int64 option_id = 4;
+}
